@@ -1,0 +1,18 @@
+﻿{
+  "manifest_version": 3,
+  "name": "Daily Journal - Nhat Ky Ca Nhan",
+  "version": "1.0.0",
+  "description": "Ghi nhat ky ca nhan hang ngay voi ho tro hoc Lap trinh, Tieng Anh va Tieng Nhat.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Daily Journal"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": []
+}

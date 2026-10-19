@@ -1,0 +1,539 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Journal - Full Screen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #0f0f1a;
+      --bg-secondary: #1a1a2e;
+      --bg-card: #16213e;
+      --bg-input: #0d1b2a;
+      --accent: #6c63ff;
+      --accent-light: #8b83ff;
+      --accent-glow: rgba(108, 99, 255, 0.25);
+      --accent2: #ff6584;
+      --accent3: #43e97b;
+      --text-primary: #e8eaf6;
+      --text-secondary: #9e9eb5;
+      --text-muted: #5a5a7a;
+      --border: rgba(108, 99, 255, 0.2);
+      --border-hover: rgba(108, 99, 255, 0.5);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 6px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+    body::-webkit-scrollbar { width: 6px; }
+    body::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* HEADER */
+    .opt-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .opt-logo-area { display: flex; align-items: center; gap: 14px; }
+    .opt-logo { font-size: 36px; filter: drop-shadow(0 0 10px rgba(108,99,255,0.6)); }
+    .opt-title {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6c63ff, #ff6584);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .opt-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .lang-switcher {
+      display: flex; gap: 4px;
+      background: var(--bg-input);
+      padding: 4px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+    }
+    .lang-btn {
+      padding: 5px 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.5px;
+    }
+    .lang-btn:hover { color: var(--text-primary); }
+    .lang-btn.active { background: var(--accent); color: white; }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 16px 40px;
+      background: linear-gradient(90deg, rgba(108,99,255,0.06), rgba(255,101,132,0.04));
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 24px; font-weight: 700; color: var(--accent-light); }
+    .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* MAIN CONTENT */
+    .opt-main { display: flex; height: calc(100vh - 130px); }
+
+    /* SIDEBAR FILTERS */
+    .opt-sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      padding: 20px;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      background: var(--bg-secondary);
+    }
+    .sidebar-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 14px;
+    }
+    .filter-group { margin-bottom: 20px; }
+    .filter-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 500; }
+
+    .search-input, .filter-select, .filter-date-full {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: var(--transition);
+    }
+    .search-input:focus, .filter-select:focus, .filter-date-full:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .filter-date-full { color-scheme: dark; }
+
+    .clear-all-btn {
+      width: 100%;
+      padding: 9px;
+      background: rgba(255,101,132,0.1);
+      border: 1px solid rgba(255,101,132,0.3);
+      border-radius: var(--radius-sm);
+      color: var(--accent2);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 4px;
+    }
+    .clear-all-btn:hover { background: rgba(255,101,132,0.2); }
+
+    /* MOOD FILTER */
+    .mood-filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .mood-filter-btn {
+      padding: 4px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .mood-filter-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* JOURNAL AREA */
+    .opt-journal-area {
+      flex: 1;
+      padding: 24px 32px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+
+    .opt-journal-area::-webkit-scrollbar { width: 5px; }
+    .opt-journal-area::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .results-count {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .results-count span { color: var(--accent-light); font-weight: 700; }
+
+    .sort-select {
+      padding: 6px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ENTRY GRID */
+    .entries-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    /* ENTRY CARD (full) */
+    .opt-entry-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .opt-entry-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent2));
+      border-radius: 3px 0 0 3px;
+    }
+    .opt-entry-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+    }
+    .opt-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .opt-topic-badge {
+      padding: 3px 10px;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      color: var(--accent-light);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .opt-mood { font-size: 18px; }
+    .opt-card-date { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+
+    .opt-card-content {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+    }
+    .opt-card-vocab {
+      display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+    }
+    .opt-vocab-chip {
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .opt-vocab-chip.en { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; }
+    .opt-vocab-chip.ja { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+
+    /* EMPTY STATE */
+    .opt-empty {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    .opt-empty-icon { font-size: 60px; margin-bottom: 16px; opacity: 0.7; }
+    .opt-empty p { font-size: 15px; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: min(720px, 100%);
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .modal-topic {
+      padding: 4px 12px;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      color: var(--accent-light);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .modal-mood { font-size: 22px; }
+    .modal-date { font-size: 12px; color: var(--text-muted); }
+    .modal-close {
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 20px;
+      cursor: pointer; padding: 6px;
+      transition: var(--transition); line-height: 1;
+    }
+    .modal-close:hover { color: var(--accent2); }
+    .modal-body {
+      flex: 1; overflow-y: auto; padding: 24px;
+      scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+    }
+    .modal-content {
+      font-size: 15px; line-height: 1.9;
+      color: var(--text-primary);
+    }
+    /* Markdown in modal */
+    .modal-content h1 { font-size: 22px; color: var(--accent-light); margin: 14px 0 8px; }
+    .modal-content h2 { font-size: 18px; color: var(--accent-light); margin: 12px 0 6px; }
+    .modal-content h3 { font-size: 15px; color: var(--accent-light); margin: 10px 0 5px; }
+    .modal-content strong { color: var(--accent-light); font-weight: 700; }
+    .modal-content em { color: #c3b1e1; font-style: italic; }
+    .modal-content code {
+      font-family: 'Fira Code', monospace; font-size: 13px;
+      background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.25);
+      border-radius: 4px; padding: 1px 6px; color: #a78bfa;
+    }
+    .modal-content pre {
+      background: #0d1117; border: 1px solid rgba(108,99,255,0.2);
+      border-radius: var(--radius-sm); padding: 16px;
+      overflow-x: auto; margin: 12px 0;
+    }
+    .modal-content pre code {
+      background: transparent; border: none; padding: 0;
+      color: #e2e8f0; font-size: 13px; line-height: 1.7;
+    }
+    .modal-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px; margin: 10px 0;
+      color: var(--text-secondary); font-style: italic;
+    }
+    .modal-content ul, .modal-content ol { padding-left: 24px; margin: 8px 0; }
+    .modal-content li { margin: 4px 0; }
+    .modal-content a { color: var(--accent-light); }
+
+    .modal-vocab-area {
+      margin-top: 20px; padding-top: 16px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 14px; flex-wrap: wrap;
+    }
+    .vocab-flashcard-full {
+      flex: 1; min-width: 160px;
+      padding: 14px 16px; border-radius: var(--radius-sm);
+    }
+    .vocab-flashcard-full.en {
+      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+    }
+    .vocab-flashcard-full.ja {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+    }
+    .vfc-flag { font-size: 22px; margin-bottom: 6px; display: block; }
+    .vfc-word { font-size: 15px; font-weight: 600; line-height: 1.5; }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end;
+    }
+    .delete-btn {
+      padding: 9px 18px;
+      background: rgba(255,101,132,0.1);
+      border: 1px solid rgba(255,101,132,0.3);
+      border-radius: var(--radius-xs);
+      color: var(--accent2);
+      font-size: 13px; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: var(--transition);
+    }
+    .delete-btn:hover { background: rgba(255,101,132,0.2); }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="opt-header">
+    <div class="opt-logo-area">
+      <div class="opt-logo">📖</div>
+      <div>
+        <div class="opt-title" data-i18n="appTitle">Daily Journal</div>
+        <div class="opt-subtitle" data-i18n="appSubtitle">Nhật Ký Cá Nhân - Full Screen View</div>
+      </div>
+    </div>
+    <div class="lang-switcher" id="langSwitcher">
+      <button class="lang-btn active" data-lang="vi">VI</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="ja">JP</button>
+    </div>
+  </header>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label" data-i18n="statTotal">Tổng nhật ký</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statToday">0</div>
+      <div class="stat-label" data-i18n="statToday">Hôm nay</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statVocab">0</div>
+      <div class="stat-label" data-i18n="statVocab">Từ vựng</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statTopics">0</div>
+      <div class="stat-label" data-i18n="statTopics">Chủ đề</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="opt-main">
+    <!-- SIDEBAR -->
+    <aside class="opt-sidebar">
+      <div class="sidebar-title" data-i18n="sidebarFilter">🔍 Lọc & Tìm kiếm</div>
+
+      <div class="filter-group">
+        <label class="filter-label" data-i18n="searchLabel">Tìm kiếm nội dung</label>
+        <input type="search" id="searchInput" class="search-input"
+          data-i18n-placeholder="searchPlaceholder" placeholder="Nhập từ khóa..." />
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label" data-i18n="filterTopicLabel">Chủ đề</label>
+        <select id="filterTopic" class="filter-select">
+          <option value="" data-i18n="filterAll">Tất cả</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label" data-i18n="filterDateLabel">Ngày</label>
+        <input type="date" id="filterDate" class="filter-date-full" />
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label" data-i18n="filterMoodLabel">Tâm trạng</label>
+        <div class="mood-filter-row">
+          <button class="mood-filter-btn" data-mood="">🔄</button>
+          <button class="mood-filter-btn" data-mood="great">😄</button>
+          <button class="mood-filter-btn" data-mood="good">🙂</button>
+          <button class="mood-filter-btn" data-mood="neutral">😐</button>
+          <button class="mood-filter-btn" data-mood="bad">😔</button>
+          <button class="mood-filter-btn" data-mood="terrible">😢</button>
+        </div>
+      </div>
+
+      <button id="clearAllFilters" class="clear-all-btn" data-i18n="clearAllBtn">✕ Xóa tất cả bộ lọc</button>
+    </aside>
+
+    <!-- JOURNAL ENTRIES -->
+    <main class="opt-journal-area">
+      <div class="results-header">
+        <div class="results-count" id="resultsCount">
+          <span id="filteredCount">0</span> <span data-i18n="entries">mục nhật ký</span>
+        </div>
+        <select id="sortSelect" class="sort-select">
+          <option value="newest" data-i18n="sortNewest">Mới nhất</option>
+          <option value="oldest" data-i18n="sortOldest">Cũ nhất</option>
+        </select>
+      </div>
+
+      <div class="entries-grid" id="entriesGrid">
+        <div class="opt-empty" id="emptyState">
+          <div class="opt-empty-icon">📭</div>
+          <p data-i18n="emptyState">Chưa có nhật ký nào.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-meta">
+          <span class="modal-topic" id="modalTopic"></span>
+          <span class="modal-mood" id="modalMood"></span>
+          <span class="modal-date" id="modalDate"></span>
+        </div>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-content" id="modalContent"></div>
+        <div class="modal-vocab-area" id="modalVocab"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="delete-btn" id="deleteEntryBtn" data-i18n="deleteBtn">🗑️ Xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
